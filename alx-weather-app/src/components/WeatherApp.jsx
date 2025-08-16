@@ -5,11 +5,10 @@ const WeatherApp = () => {
   const [weather, setWeather] = useState(null);
   const [error, setError] = useState("");
 
-  // Use .env key or fallback (for quick testing)
+  // Imported API key from .en
   const API_KEY =
     import.meta.env.VITE_WEATHER_API_KEY || "66bf69cb29ed1124d36c96d71efe2933";
 
-  // Debugging: log API key (only in dev mode)
   if (import.meta.env.DEV) {
     console.log("API Key:", API_KEY);
   }
