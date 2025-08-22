@@ -1,26 +1,31 @@
-import React from "react";
-import { Search } from "lucide-react"; // nice search icon
+import React, { useState } from "react";
 
-export default function SearchBar({ city, setCity, handleSearch }) {
+export default function SearchBar({ onSearch }) {
+  const [city, setCity] = useState("");
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    onSearch(city); 
+  };
+
   return (
-    <div className="flex flex-col sm:flex-row items-center gap-3 w-full">
-      {/* Input */}
+    <form
+      onSubmit={handleSubmit}
+      className="flex flex-col sm:flex-row items-center gap-3 w-full"
+    >
       <input
         type="text"
         value={city}
         onChange={(e) => setCity(e.target.value)}
-        placeholder="Enter city name..."
-        className="w-full sm:flex-1 px-4 py-2 rounded-lg text-black focus:outline-none focus:ring-2 focus:ring-indigo-400"
+        placeholder="Enter city..."
+        className="px-4 py-2 rounded-lg text-gray-800 w-full sm:w-64 focus:outline-none focus:ring-2 focus:ring-blue-400"
       />
-
-      {/* Button */}
       <button
-        onClick={handleSearch}
-        className="flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 px-4 py-2 rounded-lg shadow-md transition"
+        type="submit"
+        className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg text-white font-semibold transition"
       >
-        <Search size={18} />
-        <span className="font-medium">Search</span>
+        🔍 Search
       </button>
-    </div>
+    </form>
   );
 }

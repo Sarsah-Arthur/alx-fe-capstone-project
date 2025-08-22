@@ -1,101 +1,61 @@
 import React, { useState } from "react";
+import SearchBar from "./SearchBar";
+import WeatherCard from "./WeatherCard";
+import ErrorMessage from "./ErrorMessage";
+import Loader from "./Loader";
 
-const WeatherApp = () => {
-  const [city, setCity] = useState("");
-  const [weather, setWeather] = useState(null);
+export default function WeatherApp() {
+  const [weatherData, setWeatherData] = useState(null);
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   // Imported API key from .env
   const API_KEY =
     import.meta.env.VITE_WEATHER_API_KEY || "66bf69cb29ed1124d36c96d71efe2933";
 
-  if (import.meta.env.DEV) {
-    console.log("API Key:", API_KEY);
-  }
-
-  const fetchWeather = async () => {
-    const trimmedCity = city.trim();
-    if (!trimmedCity) {
+  const handleSearch = async (city) => {
+    if (!city) {
       setError("Please enter a city name.");
-      setWeather(null);
       return;
     }
 
+    setLoading(true);
+    setError("");
+    setWeatherData(null);
+
     try {
-      setError("");
-      const url = `https://api.openweathermap.org/data/2.5/weather?q=${trimmedCity}&appid=${API_KEY}&units=metric`;
+      const response = await fetch(
+        `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${API_KEY}&units=metric`
+      );
 
-      if (import.meta.env.DEV) {
-        console.log("Fetching:", url);
+      if (!response.ok) {
+        throw new Error("City not found!");
       }
 
-      const response = await fetch(url);
       const data = await response.json();
-
-      if (data.cod === 401 || data.message?.toLowerCase().includes("invalid api key")) {
-        setError("Invalid API key. Please check your .env file.");
-        setWeather(null);
-        return;
-      }
-
-      if (data.cod === "404") {
-        setError("City not found. Please check the spelling.");
-        setWeather(null);
-        return;
-      }
-
-      setWeather({
-        name: data.name,
-        temp: data.main.temp,
-        humidity: data.main.humidity,
-        wind: data.wind.speed,
-        icon: data.weather[0].icon,
-        condition: data.weather[0].description,
-      });
+      setWeatherData(data);
     } catch (err) {
-      console.error("Fetch error:", err);
-      setError("Unable to fetch weather data. Please try again.");
-      setWeather(null);
+      setError(err.message);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="p-6 max-w-md mx-auto bg-white rounded-xl shadow-md space-y-4">
-      <h1 className="text-2xl font-bold">Weather App</h1>
+    <div className="min-h-screen bg-gradient-to-br from-sky-200 via-sky-300 to-sky-400 flex flex-col items-center justify-center p-6 text-gray-800">
+      <h1 className="text-3xl md:text-4xl font-bold mb-6">Weather Dashboard</h1>
 
-      <div className="flex space-x-2">
-        <input
-          type="text"
-          value={city}
-          onChange={(e) => setCity(e.target.value)}
-          placeholder="Enter city"
-          className="border border-gray-300 rounded px-3 py-2 flex-grow"
-        />
-        <button
-          onClick={fetchWeather}
-          className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded"
-        >
-          Search
-        </button>
-      </div>
+      {/* Search Input */}
+      <SearchBar onSearch={handleSearch} />
 
-      {error && <p className="text-red-500">{error}</p>}
+      {/* Loader */}
+      {loading && <Loader />}
 
-      {weather && (
-        <div className="bg-gray-100 p-4 rounded mt-4">
-          <h2 className="text-xl font-semibold">{weather.name}</h2>
-          <img
-            src={`https://openweathermap.org/img/wn/${weather.icon}@2x.png`}
-            alt={weather.condition}
-          />
-          <p className="text-lg">{weather.condition}</p>
-          <p>🌡 Temperature: {weather.temp}°C</p>
-          <p>💧 Humidity: {weather.humidity}%</p>
-          <p>💨 Wind Speed: {weather.wind} km/h</p>
-        </div>
-      )}
+      {/* Error Message */}
+      {!loading && error && <ErrorMessage message={error} />}
+
+      {/* WeatherCard */}
+      {!loading && weatherData && <WeatherCard data={weatherData} />}
     </div>
   );
-};
-
-export default WeatherApp;
+}
