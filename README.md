@@ -6,6 +6,8 @@
 A simple and elegant weather app built with **React** and **Tailwind CSS**.
 It allows users to search for any city and view real-time weather data fetched from the **OpenWeatherMap API**.
 
+🔗 **Live Demo:** [View on Vercel](https://vercel.com/sarsah-arthurs-projects/alx-fe-capstone-project/HH6bP9sLHxyERri7quCsZJ6HdCfi)
+
 ---
 
 ## ✨ Features
